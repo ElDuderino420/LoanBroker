@@ -15,6 +15,7 @@ The loan quote process flow goes like this:
 Run everything by running the runeverything.bat file.
 
 Make loan request on http://localhost:3030
+
 Rulebase server on http://localhost:3031/getbanks?wsdl
 
 Loan Request => getCreditScoreQueue => getBanksQueue => recipientListQueue => ...
