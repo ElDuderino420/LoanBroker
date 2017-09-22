@@ -1,0 +1,55 @@
+    <definitions name="RuleBaseService"
+   targetNamespace="http://www.examples.com/wsdl/HelloService.wsdl"
+   xmlns="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:tns="http://www.examples.com/wsdl/HelloService.wsdl"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+   <!-- message tags define data elements for each operation -->
+   <message name="getBanksRequest">  
+      <part name="ssn" type="xs:string"/>
+      <part name="loanAmount" type="xs:string"/>
+      <part name="loanDuration" type="xs:string"/>
+      <part name="creditScore" type="xs:string"/>
+   </message>
+  //message tags define data elements for each operation
+   <message name="getBanksResponse"> 
+      <part name="banks" type="xs:string"/>
+   </message>
+   //describes operations performed by a port and the messages involved
+   <portType name="Hello_PortType"> 
+      <operation name="getBanks">
+         <input message="tns:getBanksRequest"/>
+         <output message="tns:getBanksResponse"/>
+      </operation>
+   </portType>
+   //defines the protocol and data format for each port type
+   <binding name="Hello_Binding" type="tns:Hello_PortType">
+      <soap:binding style="rpc"
+         transport="http://schemas.xmlsoap.org/soap/http"/>
+      <operation name="getBanks">
+         <soap:operation soapAction="getBanks"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:examples:rulebaseservice"
+               use="encoded"/>
+         </input>
+
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:examples:rulebaseservice"
+               use="encoded"/>
+         </output>
+      </operation>
+   </binding>
+
+   <service name="Banks_Service"> // defines the ports supported by remote service
+      <documentation>WSDL File for RuleBaseService</documentation>
+      <!-- defines individual endpoint by a single address-->
+      <port binding="tns:Hello_Binding" name="Banks_Port">
+         <soap:address
+            location="http://localhost:3031/getbanks/" />
+      </port>
+   </service>
+</definitions>

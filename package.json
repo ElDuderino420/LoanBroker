@@ -1,0 +1,27 @@
+{
+  "name": "loanbroker",
+  "version": "1.0.0",
+  "description": "loanbroker7",
+  "main": "app.js",
+  "dependencies": {
+    "amqplib": "^0.5.1",
+    "body-parser": "^1.18.1",
+    "body-parser-xml": "^1.1.0",
+    "express": "^4.15.4",
+    "soap": "^0.21.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ElDuderino420/LoanBroker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ElDuderino420/LoanBroker/issues"
+  },
+  "homepage": "https://github.com/ElDuderino420/LoanBroker#readme"
+}
