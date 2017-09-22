@@ -1,5 +1,5 @@
 # LoanBroker
-loanbroker7
+Group: loanbroker7
 
 
 The loan quote process flow goes like this:
@@ -10,3 +10,11 @@ The loan quote process flow goes like this:
 5. Collect response from each selected bank
 6. Determine the best response
 7. Pass the result back to the consumer
+
+
+Run everything by running the runeverything.bat file.
+
+Make loan request on http://localhost:3030
+Rulebase server on http://localhost:3031/getbanks?wsdl
+
+Loan Request => getCreditScoreQueue => getBanksQueue => recipientListQueue => ...
