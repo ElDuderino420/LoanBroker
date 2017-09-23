@@ -15,12 +15,41 @@ var service = {
             calculateInterest: function (args)
             {
                 var ssn = args.ssn;
-                var creditScore = args.creditScore;
-                var loanAmount = args.loanAmount;
-                var loanDuration = args.loanDuration;
+                var creditScore = args.creditscore;
+                var loanAmount = args.loanamount;
+                var loanDuration = args.loanduration;
                 var year = new Date().getFullYear();
+                var interestRate;
 
-                var interestRate = (Math.random()*10); //tager et tal mellem 0.0... og 9.9... og ganger med ti, for en nogenlunde realistik rente.
+                switch(true)
+                {
+                    case(creditScore < 100):
+                        var interestRate = (Math.random()*10);
+                        break;
+                    case(creditScore > 200 && creditScore < 300):
+                        var interestRate = (Math.random()*10);
+                        break;
+                    case(creditScore > 300 && creditScore < 400):
+                        var interestRate = (Math.random()*8);
+                        break;
+                    case(creditScore > 400 && creditScore < 500):
+                        var interestRate = (Math.random()*6);
+                        break;
+                    case(creditScore > 500 && creditScore < 600):
+                        var interestRate = (Math.random()*4);
+                        break;
+                    case(creditScore > 600 && creditScore < 700):
+                        var interestRate = (Math.random()*2);
+                        break;
+                    case(creditScore > 700 && creditScore < 800):
+                        var interestRate = (Math.random());
+                        break;
+                    case(creditScore === 800):
+                        var interestRate = (Math.random()/2);
+                        break;
+
+                }
+
                 return {loanResponse: {
                     interestRate : interestRate,
                     ssn : ssn
