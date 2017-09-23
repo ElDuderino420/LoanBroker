@@ -14,46 +14,59 @@ var service = {
         interest_port: {
             calculateInterest: function (args)
             {
+                console.log(Object.keys(args));
                 var ssn = args.ssn;
-                var creditScore = args.creditscore;
-                var loanAmount = args.loanamount;
-                var loanDuration = args.loanduration;
+                var creditScore = args.creditScore;
+                var loanAmount = args.loanAmount;
+                var loanDuration = args.loanDuration;
                 var year = new Date().getFullYear();
                 var interestRate;
 
-                switch(true)
+                console.log("her er credit: " + creditScore);
+                switch (true)
                 {
-                    case(creditScore < 100):
-                        var interestRate = (Math.random()*10);
+                    case(creditScore <= 100):
+                        interestRate = (Math.random() * 20);
+                        console.log("1");
                         break;
-                    case(creditScore > 200 && creditScore < 300):
-                        var interestRate = (Math.random()*10);
+                    case(creditScore >= 200 && creditScore < 300):
+                        interestRate = (Math.random() * 16);
+                        console.log("2");
                         break;
-                    case(creditScore > 300 && creditScore < 400):
-                        var interestRate = (Math.random()*8);
+                    case(creditScore >= 300 && creditScore < 400):
+                        interestRate = (Math.random() * 12);
+                        console.log("3");
                         break;
-                    case(creditScore > 400 && creditScore < 500):
-                        var interestRate = (Math.random()*6);
+                    case(creditScore >= 400 && creditScore < 500):
+                        interestRate = (Math.random() * 8);
+                        console.log("4");
                         break;
-                    case(creditScore > 500 && creditScore < 600):
-                        var interestRate = (Math.random()*4);
+                    case(creditScore >= 500 && creditScore < 600):
+                        interestRate = (Math.random() * 4);
+                        console.log("5");
                         break;
-                    case(creditScore > 600 && creditScore < 700):
-                        var interestRate = (Math.random()*2);
+                    case(creditScore >= 600 && creditScore < 700):
+                        interestRate = (Math.random());
+                        console.log("6");
                         break;
-                    case(creditScore > 700 && creditScore < 800):
-                        var interestRate = (Math.random());
+                    case(creditScore >= 700 && creditScore < 800):
+                        interestRate = (Math.random() / 4);
+                        console.log("7");
                         break;
                     case(creditScore === 800):
-                        var interestRate = (Math.random()/2);
+                        interestRate = (Math.random() / 8);
+                        console.log("8");
                         break;
 
                 }
 
-                return {loanResponse: {
-                    interestRate : interestRate,
-                    ssn : ssn
-                }};
+                console.log(interestRate)
+                return {
+                    loanResponse: {
+                        interestRate: interestRate,
+                        ssn: ssn
+                    }
+                };
             }
         }
     }
@@ -64,5 +77,6 @@ var server = app.listen(3030, function ()
 {
     var host = "localhost";
     var port = server.address().port;
-});+
-soap.listen(server, '/getinterest', service, xml);
+});
++
+    soap.listen(server, '/getinterest', service, xml);

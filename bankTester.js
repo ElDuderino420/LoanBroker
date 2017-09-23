@@ -16,18 +16,18 @@ app.post('/john', bodyParser.urlencoded({extended: false}), function (req, res)
 {
     console.log(Object.keys(req.body.loanrequest));
     console.log(req.body.loanrequest.ssn);
-    console.log(req.body.loanrequest.creditScore);
-    console.log(req.body.loanrequest.loanAmount);
-    console.log(req.body.loanrequest.loanDuration);
+    console.log(req.body.loanrequest.creditscore);
+    console.log(req.body.loanrequest.loanamount);
+    console.log(req.body.loanrequest.loanduration);
     /*
 
     -beginning of soap body
     -url is defined to point to server.js so that soap cient can consume soap server's remote service
     -args supplied to remote service method
     */
-    var url = "http://localhost:3030/soapbank?wsdl";
+    var url = "http://localhost:3030/getinterest?wsdl";
     console.log("her er URL: " + url);
-    var args = {ssn: "12345678", creditScore: 25.5, loanAmount: 1000.0, loanDuration: 2};
+    var args = {ssn: req.body.loanrequest.ssn, creditScore: req.body.loanrequest.creditscore, loanAmount: req.body.loanrequest.loanamount, loanDuration: req.body.loanrequest.loanduration};
     soap.createClient(url, function (err, client)
     {
         if (err)
