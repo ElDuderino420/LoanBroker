@@ -11,7 +11,15 @@ var service = {
                 var year = new Date().getFullYear();
                 var n = args
                 console.log(n);
-                return {banks: 'cphbusiness.bankJSON'};
+                var allBanks = ['cphbusiness.bankJSON', 
+                            'cphbusiness.bankXML',
+                            '',
+                            ''];
+                var ans = [];
+
+                ans = allBanks;
+
+                return ans;
             }
         }
     }

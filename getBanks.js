@@ -19,10 +19,16 @@ amqp.connect(rabbitmq, function (err, conn) {
             var request = JSON.parse(msg.content);
             
             getBanks(request, function(result){ 
-                console.log("callback:" + result.banks);
-                
-                console.log(request);
-                recipientList(result.banks);
+                console.log("callback:" + result[0]);
+                var allBanks = ['cphbusiness.bankJSON', 
+                'cphbusiness.bankXML',
+                '',
+                ''];
+
+                //JSON.parse(result);
+                console.log(result);
+                console.log(allBanks);
+                recipientList(request, allBanks);
             });
             
 
@@ -43,23 +49,33 @@ function getBanks(request, callback) {
                     console.error(err);
                 else{
                     console.log(response);
-                    callback(response);
+                    var arr = Object.keys(response).map(function(key){ return response[key] });
+                    
+                    callback(arr);
                 }
             });
         }
     });
 };
 
-function recipientList(request) {
+function recipientList(request, bank) {
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
-            var q = 'recipientListQueue';
+            var ex = 'recipientListEx';
+            ch.assertExchange(ex, 'direct', {durable: false});
+
+            bank.forEach(function(bankname) {
+                ch.publish(ex, bankname, Buffer.from(JSON.stringify(request)));
+                console.log(" [x] Sent %s: '%s'", bankname, JSON.stringify(request));
+            });
+
+            /* var q = 'recipientListQueue';
             ch.assertQueue(q, {
                 durable: false
             });
 
             ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));
-            console.log(" [x] Sending request to selected banks");
+            console.log(" [x] Sending request to selected banks"); */
         });
         setTimeout(function () {
             conn.close();
