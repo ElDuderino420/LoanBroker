@@ -18,4 +18,8 @@ Make loan request on http://localhost:3030
 
 Rulebase server on http://localhost:3031/getbanks?wsdl
 
-Loan Request => getCreditScoreQueue => getBanksQueue => recipientListQueue => ...
+Loan Request (loanRequest.js) => 
+getCreditScoreQueue (getCreditScore.js) => 
+getBanksQueue (getBanks.js) => 
+recipientListQueue () => 
+...
