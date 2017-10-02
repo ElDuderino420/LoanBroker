@@ -22,10 +22,15 @@ app.post('/loanRequest', function(req, res){
     amqp.connect(rabbitmq, function(err, conn){
         conn.createChannel(function(err, ch){
             var q = 'getCreditScoreQueue';
+            var log = 'logQueue';
             ch.assertQueue(q, {durable: false});
+            ch.assertQueue(log, {durable: false});
 
             ch.sendToQueue(q, Buffer.from(JSON.stringify(req.body)));
-            console.log(" [x] Send request to credit score");
+            ch.sendToQueue(log, Buffer.from(JSON.stringify(req.body)));
+            ch.sendToQueue(log, Buffer.from(" [x] Send request to credit score"));
+            //console.log(" [x] Send request to credit score");
+            
         });
         setTimeout(function(){ conn.close();}, 500);
     });
@@ -33,8 +38,28 @@ app.post('/loanRequest', function(req, res){
     res.redirect('/');
 });
 
+function log() {
+    amqp.connect(rabbitmq, function(err, conn) {
+        conn.createChannel(function(err, ch) {
+            var log = 'logQueue';
+            ch.assertQueue(log, {
+                durable: false
+            });
+    
+            console.log(" [LOG]: Waiting for messages in %s. To exit press CTRL+C", log);
+            ch.consume(log, function (msg) {
+                console.log(" [LOG]: %s", msg.content.toString());            
+    
+            }, {
+                noAck: true
+            });
+        });
+    });
+}
+
 var server = app.listen(3030, function(){
     var host = 'localhost';
     var port = server.address().port;
     console.log("server running at http://%s:%s\n", host, port);
+    log();
 });

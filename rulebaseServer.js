@@ -9,8 +9,7 @@ var service = {
             getBanks:function(args){
                 //console.log(Date().getFullYear())
                 var year = new Date().getFullYear();
-                var n = args
-                console.log(n);
+                console.log(args);
                 var allBanks = ['cphbusiness.bankJSON', 
                             'cphbusiness.bankXML',
                             '',

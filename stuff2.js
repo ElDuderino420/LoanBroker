@@ -8,8 +8,8 @@ var url2 = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 
 amqp.connect(url2, function (err, conn) {
     conn.createChannel(function (err, ch) {
+        //var ex = 'cphbusiness.bankXML';
         var ex = 'cphbusiness.bankJSON';
-        
 
         ch.assertQueue('tttezzt', {
             durable: true
