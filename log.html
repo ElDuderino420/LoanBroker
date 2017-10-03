@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <script>
+        $(document).ready(function(){
+            $("#log").click(function(){
+                $.get("localhost:3031/getLog", function(data) {
+                    $("#log").append(data);
+                });
+            });
+        });
+        </script>
+    </head>
+    <body>
+        <textarea id="log"></textarea>
+    </body>
+</html>

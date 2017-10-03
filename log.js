@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/', function(req, res){
-    res.sendFile(__dirname + '/LoanRequest.html');
+    res.sendFile(__dirname + '/log.html');
 });
 
 app.post('/loanRequest', function(req, res){
@@ -43,3 +43,23 @@ var server = app.listen(3030, function(){
     var port = server.address().port;
     console.log("server running at http://%s:%s\n", host, port);
 });
+
+
+function log() {
+    amqp.connect(rabbitmq, function(err, conn) {
+        conn.createChannel(function(err, ch) {
+            var log = 'logQueue';
+            ch.assertQueue(log, {
+                durable: false
+            });
+    
+            console.log(" [LOG]: Waiting for messages in %s. To exit press CTRL+C", log);
+            ch.consume(log, function (msg) {
+                console.log(" [LOG]: %s", msg.content.toString());            
+    
+            }, {
+                noAck: true
+            });
+        });
+    });
+}
