@@ -12,8 +12,7 @@ app.use(cors());
 var service = {
     interestService: {
         interest_port: {
-            calculateInterest: function (args)
-            {
+            calculateInterest: function (args) {
                 console.log(Object.keys(args));
                 var ssn = args.ssn;
                 var creditScore = args.creditScore;
@@ -73,8 +72,7 @@ var service = {
 };
 // xml data is extracted from wsdl file created
 var xml = require('fs').readFileSync('./soapbank.wsdl', 'utf8');
-var server = app.listen(3030, function ()
-{
+var server = app.listen(3030, function () {
     var host = "localhost";
     var port = server.address().port;
 });
