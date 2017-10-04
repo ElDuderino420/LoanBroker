@@ -5,35 +5,27 @@ amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var ex = 'recipientListEx';
 
-        var banksQueues = {
-            cphJSON: 'cphbusiness.bankJSON',
-            cphXML: 'cphbusiness.bankXML',
-            ourSOAP: '',
-            ourRABBIT: ''
-        };
-
-        ch.assertExchange(ex, 'direct', {durable: false});
-
-        ch.assertQueue()
+        var topics = ["poor"];
 
 
-        ch.assertQueue('', {exclusive: true}, function(err,q) {
-            console.log(' [*] Waiting for requests to cphJSON Bank.');
-            console.log(q.queue);
-            ch.bindQueue(q.queue, ex, banksQueues.cphJSON);
-
-            ch.consume(q.queue, function(msg) {
-                console.log(" [JSON] %s: '%s'", msg.fields.routingKey, msg.content.toString());
-              }, {noAck: true});
+        ch.assertExchange(ex, 'topic', {
+            durable: false
         });
 
-        ch.assertQueue('', {exclusive: true}, function(err,q) {
-            console.log(' [*] Waiting for requests to cphXML Bank.');
-            ch.bindQueue(q.queue, ex, banksQueues.cphXML);
+        ch.assertQueue('', {
+            durable: true
+        }, function (err, q) {
+            console.log(' [*] Waiting for logs. To exit press CTRL+C');
 
-            ch.consume(q.queue, function(msg) {
-                console.log(" [XML] %s: '%s'", msg.fields.routingKey, msg.content.toString());
-              }, {noAck: true});
+            topics.forEach(function (key) {
+                ch.bindQueue(q.queue, ex, key);
+            });
+
+            ch.consume(q.queue, function (msg) {
+                console.log(" [x] %s:'%s'", msg.fields.routingKey, msg.content.toString());
+            }, {
+                noAck: true
+            });
         });
 
     });

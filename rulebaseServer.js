@@ -10,14 +10,12 @@ var service = {
                 //console.log(Date().getFullYear())
                 var year = new Date().getFullYear();
                 console.log(args);
-                var allBanks = ['cphbusiness.bankJSON', 
-                            'cphbusiness.bankXML',
-                            '',
-                            ''];
-                var ans = [];
+                var allBanks = ['poor', 
+                            'rich',
+                            'all'];
+                var ans = ['rich'];
 
-                ans = allBanks;
-
+                
                 return ans;
             }
         }
@@ -28,5 +26,6 @@ var xml = require('fs').readFileSync('./rulebase.wsdl','utf8');
 var server = app.listen(3031,function(){
     var host = "127.0.0.1";
     var port = server.address().port;
+    console.log("server running at http://%s:%s\n", host, port);
 });
-soap.listen(server,'/getbanks',service,xml);
+soap.listen(server,'/getbanks', service, xml);

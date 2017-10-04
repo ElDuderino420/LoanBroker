@@ -8,4 +8,3 @@ call pm2 start loanRequest.js
 call pm2 start getCreditScore.js
 call pm2 start rulebaseServer.js
 call pm2 start getBanks.js
-call pm2 start recipientList.js

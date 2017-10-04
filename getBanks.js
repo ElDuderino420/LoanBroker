@@ -7,7 +7,7 @@ var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
-        var q = 'getBanksQueue';
+        var q = 'getBanksQueue2';
         ch.assertQueue(q, {
             durable: false
         });
@@ -19,16 +19,9 @@ amqp.connect(rabbitmq, function (err, conn) {
             var request = JSON.parse(msg.content);
             
             getBanks(request, function(result){ 
-                console.log("callback:" + result[0]);
-                var allBanks = ['cphbusiness.bankJSON', 
-                'cphbusiness.bankXML',
-                '',
-                ''];
-
-                //JSON.parse(result);
-                console.log(result);
-                console.log(allBanks);
-                recipientList(request, allBanks);
+                console.log("callback:" + result);
+                
+                recipientList(request, result);
             });
             
 
@@ -44,13 +37,11 @@ function getBanks(request, callback) {
         if(err)
             console.error(err);
         else {
-            client.getBanks(request,function(err, response){
+            client.getBanks(request, function(err, response){
                 if(err)
                     console.error(err);
                 else{
-                    console.log(response);
                     var arr = Object.keys(response).map(function(key){ return response[key] });
-                    
                     callback(arr);
                 }
             });
@@ -58,24 +49,18 @@ function getBanks(request, callback) {
     });
 };
 
-function recipientList(request, bank) {
+function recipientList(request, topic) {
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
             var ex = 'recipientListEx';
-            ch.assertExchange(ex, 'direct', {durable: false});
 
-            bank.forEach(function(bankname) {
-                ch.publish(ex, bankname, Buffer.from(JSON.stringify(request)));
-                console.log(" [x] Sent %s: '%s'", bankname, JSON.stringify(request));
-            });
+            var key = (topic.length > 0) ? topic[0] : 'all';
 
-            /* var q = 'recipientListQueue';
-            ch.assertQueue(q, {
-                durable: false
-            });
+            ch.assertExchange(ex, 'topic', {durable: false});
 
-            ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));
-            console.log(" [x] Sending request to selected banks"); */
+            ch.publish(ex, key, Buffer.from(JSON.stringify(request)));
+            console.log(" [x] Sent %s: '%s'", key, JSON.stringify(request));
+            
         });
         setTimeout(function () {
             conn.close();

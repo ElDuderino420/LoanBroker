@@ -18,7 +18,6 @@ amqp.connect(rabbitmq, function (err, conn) {
             var request = JSON.parse(msg.content);
 
             getCreditScore(request.ssn, function(result){ 
-                console.log("callback:" + result);
                 request.creditScore = result.toString();
                 console.log(request);
                 getBanks(request);
@@ -41,7 +40,6 @@ function getCreditScore(ssn, callback) {
                 if (err) {
                     console.log(err);
                 } else {
-                    console.log(result.return);
                     
                     callback(result.return);
 
@@ -55,13 +53,13 @@ function getCreditScore(ssn, callback) {
 function getBanks(request) {
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
-            var q = 'getBanksQueue';
+            var q = 'getBanksQueue2';
             ch.assertQueue(q, {
                 durable: false
             });
 
             ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));
-            console.log(" [x] Send request to credit score");
+            console.log(" [x] Send request to rulebase");
         });
         setTimeout(function () {
             conn.close();
