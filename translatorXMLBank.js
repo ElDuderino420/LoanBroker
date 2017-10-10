@@ -5,30 +5,60 @@ var js2xmlparser = require("js2xmlparser");
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var ex = 'recipientListEx';
+        var q = 'group7translatorXMLBankQueue'
+        var topics = "poor";
 
-        var topics = ["poor"];
-
-
-        ch.assertExchange(ex, 'topic', {
+        ch.assertQueue(q, {
             durable: false
         });
 
-        ch.assertQueue('', {
-            durable: true
-        }, function (err, q) {
-            console.log(' [*] Waiting for logs. To exit press CTRL+C');
+        ch.bindQueue(q, ex, topics);
 
-            topics.forEach(function (key) {
-                ch.bindQueue(q.queue, ex, key);
-            });
+        ch.consume(q, function(msg){
+            console.log(" [x] %s:'%s'", msg.fields.routingKey, msg.content.toString());
 
-            ch.consume(q.queue, function (msg) {
-                var xml = js2xmlparser.parse("LoanRequest", msg.content);
-                console.log(" [x] %s:'%s'", msg.fields.routingKey, msg.content.toString());
-            }, {
-                noAck: true
-            });
+            sendToBank(JSON.parse(msg.content));
+
+
+        }, {
+            noAck: true
         });
 
     });
 });
+
+function JsonToXML(jsonRequest){
+    var XML = "<LoanRequest><ssn>" 
+    + jsonRequest.ssn 
+    + "</ssn><creditScore>"
+    + jsonRequest.creditScore
+    + "</creditScore><loanAmount>"
+    + jsonRequest.loanAmount
+    + "</loanAmount><loanDuration>"
+    + jsonRequest.loanDuration
+    + "</loanDuration></LoanRequest>";
+        
+    return XML;
+    
+    
+    }
+
+function sendToBank(request) {
+    var XMLRequest = JsonToXML(request);
+    amqp.connect(rabbitmq, function (err, conn) {
+        
+        conn.createChannel(function (err, ch) {
+            var ex = 'cphbusiness.bankXML';
+    
+            ch.assertExchange(ex, 'fanout', {
+                durable: false
+            });
+            console.log(" [x] sent: %s", XMLRequest);
+            ch.publish(ex, '', Buffer.from(XMLRequest), {
+                replyTo: 'XMLQueue'
+            });
+    
+        });
+    });
+    
+}
