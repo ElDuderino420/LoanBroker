@@ -4,29 +4,43 @@ var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var ex = 'recipientListEx';
+        var q = 'group7translatorJSONBankQueue'
+        var topics = "all";
 
-        var topics = ["poor"];
-
-
-        ch.assertExchange(ex, 'topic', {
+        ch.assertQueue(q, {
             durable: false
         });
 
-        ch.assertQueue('', {
-            durable: true
-        }, function (err, q) {
-            console.log(' [*] Waiting for logs. To exit press CTRL+C');
+        ch.bindQueue(q, ex, topics);
 
-            topics.forEach(function (key) {
-                ch.bindQueue(q.queue, ex, key);
-            });
+        ch.consume(q, function(msg){
+            console.log(" [x] %s:'%s'", msg.fields.routingKey, msg.content.toString());
 
-            ch.consume(q.queue, function (msg) {
-                console.log(" [x] %s:'%s'", msg.fields.routingKey, msg.content.toString());
-            }, {
-                noAck: true
-            });
+            sendToBank(JSON.parse(msg.content));
+
+
+        }, {
+            noAck: true
         });
 
     });
 });
+
+function sendToBank(request) {
+    amqp.connect(rabbitmq, function (err, conn) {
+        
+        conn.createChannel(function (err, ch) {
+            var ex = 'cphbusiness.bankJSON';
+    
+            ch.assertExchange(ex, 'fanout', {
+                durable: false
+            });
+            
+            ch.publish(ex, '', Buffer.from(JSON.stringify(request)), {
+                replyTo: 'JSONQueue'
+            });
+    
+        });
+    });
+    
+}

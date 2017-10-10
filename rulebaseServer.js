@@ -10,12 +10,19 @@ var service = {
                 //console.log(Date().getFullYear())
                 var year = new Date().getFullYear();
                 console.log(args);
+                var ans = [];
                 var allBanks = ['poor', 
-                            'rich',
-                            'all'];
-                var ans = ['rich'];
-
-                
+                'rich',
+                'all'];
+                if(args.creditScore > 500){
+                    ans.push(allBanks[1]);
+                }
+                else if(args.creditScore < 400){
+                    ans.push(allBanks[0]);
+                } 
+                else {
+                    ans.push(allBanks[2]);
+                }
                 return ans;
             }
         }
