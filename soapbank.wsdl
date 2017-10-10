@@ -50,7 +50,7 @@
         <!-- defines individual endpoint by a single address-->
         <port binding="tns:Hello_Binding" name="interest_port">
             <soap:address
-                    location="http://localhost:3030/getinterest/"/>
+                    location="http://localhost:3032/calculateInterest/"/>
         </port>
     </service>
 </definitions>

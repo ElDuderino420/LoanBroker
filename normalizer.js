@@ -8,42 +8,52 @@ var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
-        var xq = 'XMLQueue';
-        var jq = 'JSONQueue';
+        var qs = ['XMLQueue',
+        'JSONQueue',
+        'RabbitJsonQueue',
+        'group7SoapResponse'];
 
-        ch.assertQueue(xq, {
-            durable: false
-        });
-        ch.assertQueue(jq, {
-            durable: false
-        });
+        qs.forEach(function(q){
+            ch.assertQueue(q, {
+                durable: false
+            
+            });
+            console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", q);
+        })
 
-        console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", xq);
-        console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", jq);
-        ch.consume(xq, function (msg) {
+        ch.consume(qs[0], function (msg) {
             console.log(" [x] Received %s", msg.content.toString());
             var request = msg.content.toString();
 
-
             parseString(request, function (err, result) {
-                //console.log(result);
+
             });
-            //var request = JSON.parse(msg.content);
-            //var response = parser.toJson(msg.content.toString());
-            //console.log(response);
-            
+          
 
         }, {
             noAck: true
         });
 
-        ch.consume(jq, function (msg) {
+        ch.consume(qs[1], function (msg) {
             console.log(" [x] Received %s", msg.content.toString());
 
             var request = JSON.parse(msg.content);
 
-            
-            
+        }, {
+            noAck: true
+        });
+        ch.consume(qs[2], function (msg) {
+            console.log(" [x] Received %s", msg.content.toString());
+
+            var request = JSON.parse(msg.content);
+
+        }, {
+            noAck: true
+        });
+        ch.consume(qs[3], function (msg) {
+            console.log(" [x] Received %s", msg.content.toString());
+
+            var request = JSON.parse(msg.content);
 
         }, {
             noAck: true

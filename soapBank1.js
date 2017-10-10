@@ -14,12 +14,14 @@ var service = {
         interest_port: {
             calculateInterest: function (args) {
                 console.log(Object.keys(args));
+                console.log(args)
                 var ssn = args.ssn;
                 var creditScore = args.creditScore;
                 var loanAmount = args.loanAmount;
                 var loanDuration = args.loanDuration;
                 var year = new Date().getFullYear();
                 var interestRate;
+
 
                 console.log("her er credit: " + creditScore);
                 switch (true)
@@ -72,9 +74,9 @@ var service = {
 };
 // xml data is extracted from wsdl file created
 var xml = require('fs').readFileSync('./soapbank.wsdl', 'utf8');
-var server = app.listen(3030, function () {
+var server = app.listen(3032, function () {
     var host = "localhost";
     var port = server.address().port;
 });
 +
-    soap.listen(server, '/getinterest', service, xml);
+    soap.listen(server, '/calculateInterest', service, xml);
