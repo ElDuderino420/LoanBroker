@@ -21,8 +21,10 @@ var service = {
                     ans.push(allBanks[0]);
                 } 
                 else {
-                    ans.push(allBanks[2]);
+                    ans.push(allBanks[0]);
+                    ans.push(allBanks[1]);
                 }
+                console.log(ans);
                 return ans;
             }
         }
