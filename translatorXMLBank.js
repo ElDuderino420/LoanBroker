@@ -27,24 +27,9 @@ amqp.connect(rabbitmq, function (err, conn) {
     });
 });
 
-function JsonToXML(jsonRequest){
-    var XML = "<LoanRequest><ssn>" 
-    + jsonRequest.ssn 
-    + "</ssn><creditScore>"
-    + jsonRequest.creditScore
-    + "</creditScore><loanAmount>"
-    + jsonRequest.loanAmount
-    + "</loanAmount><loanDuration>"
-    + jsonRequest.loanDuration
-    + "</loanDuration></LoanRequest>";
-        
-    return XML;
-    
-    
-    }
 
 function sendToBank(request) {
-    var XMLRequest = JsonToXML(request);
+    
     amqp.connect(rabbitmq, function (err, conn) {
         
         conn.createChannel(function (err, ch) {
@@ -53,8 +38,8 @@ function sendToBank(request) {
             ch.assertExchange(ex, 'fanout', {
                 durable: false
             });
-            console.log(" [x] sent: %s", XMLRequest);
-            ch.publish(ex, '', Buffer.from(XMLRequest), {
+            console.log(" [x] sent: %s", js2xmlparser.parse("LoanRequest", request));
+            ch.publish(ex, '', Buffer.from(js2xmlparser.parse("LoanRequest", request)), {
                 replyTo: 'XMLQueue'
             });
     
