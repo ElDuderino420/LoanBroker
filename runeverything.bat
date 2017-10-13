@@ -11,3 +11,4 @@ call start node translatorJSONBank.js poor
 call start node translatorXMLBank.js rich
 call start node translatorSoapBank.js poor rich
 call start node translatorRabbitBank.js poor rich
+call start node normalizer.js

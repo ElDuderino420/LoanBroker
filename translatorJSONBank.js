@@ -3,6 +3,7 @@ var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 
 var args = process.argv.slice(2);
 console.log(args)
+console.log("JSON");
 
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {

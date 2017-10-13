@@ -3,7 +3,7 @@ var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 
 var args = process.argv.slice(2);
 console.log(args)
-
+console.log("rabbit");
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var ex = 'recipientListEx';
@@ -45,11 +45,12 @@ function sendToBank(request) {
             ch.assertExchange(ex, 'fanout', {
                 durable: false
             });
-            
+            console.log(" [x] sent: %s", JSON.stringify(request));
+
             ch.publish(ex, '', Buffer.from(JSON.stringify(request)), {
                 replyTo: 'RabbitJsonQueue'
             });
-    
+           
         });
     });
     

@@ -64,11 +64,10 @@ amqp.connect(url2, function (err, conn) {
                     ch.sendToQueue(msg.properties.replyTo, new Buffer(JSON.stringify(obj)));
                     console.log("sendte reply: " + JSON.stringify(obj));
 
-            }}
-        ,
+            }
+        },
             {
                 noAck: true
-            }
-        );
+            });
     });
 });

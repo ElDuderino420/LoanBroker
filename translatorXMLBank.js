@@ -4,7 +4,7 @@ var js2xmlparser = require("js2xmlparser");
 
 var args = process.argv.slice(2);
 console.log(args);
-
+console.log("XML");
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var ex = 'recipientListEx';

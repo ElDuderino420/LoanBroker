@@ -1,5 +1,5 @@
 var amqp = require('amqplib/callback_api');
-var creditBureau = 'http://localhost:3032/calculateInterest?wsdl'
+var soapBank = 'http://localhost:3032/calculateInterest?wsdl'
 var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 var soap = require('soap');
 var js2xmlparser = require("js2xmlparser");
@@ -37,16 +37,15 @@ amqp.connect(rabbitmq, function (err, conn) {
 function sendToBank(request) {
     var cpr = request.ssn;
     request.ssn = cpr.slice(0, cpr.indexOf("-"))+cpr.slice(cpr.indexOf("-")+1);
-    var XML = js2xmlparser.parse("loanRequest", request);
-    console.log(XML)
-
-    soap.createClient(creditBureau, function (err, client) {
+    soap.createClient(soapBank, function (err, client) {
         if (err) {
             console.log(err)
         } else {
-            client.calculateInterest(""+XML, function (err, result) {
+            client.calculateInterest(request, function (err, result) {
                 if (err) {
                     console.log(err);
+                    console.log("send error to normalizer")
+                    sendToNormalizer(JSON.stringify({ssn:request.ssn,interestRate:"err"}));
                 } else {
                     
                     sendToNormalizer(result);
@@ -66,7 +65,7 @@ function sendToNormalizer(request) {
                 durable: false
             });
 
-            ch.sendToQueue(q, Buffer.from(request));
+            ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));
             console.log(request);
             console.log(" [x] Send request to Normalizer");
         });
