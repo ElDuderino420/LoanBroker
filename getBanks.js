@@ -20,7 +20,12 @@ amqp.connect(rabbitmq, function (err, conn) {
             
             getBanks(request, function(result){ 
                 console.log("callback:" + result);
-                
+                var cpr = request.ssn;
+                temp = cpr.slice(0, cpr.indexOf("-"))+cpr.slice(cpr.indexOf("-")+1);
+                sendToAggregator({
+                    ssn: temp,
+                    topic: result
+                })
                 recipientList(request, result);
             });
             
@@ -61,6 +66,23 @@ function recipientList(request, topic) {
             ch.publish(ex, key, Buffer.from(JSON.stringify(request)));
             console.log(" [x] Sent %s: '%s'", key, JSON.stringify(request));
             
+        });
+        setTimeout(function () {
+            conn.close();
+        }, 500);
+    });
+}
+
+function sendToAggregator(request) {
+    amqp.connect(rabbitmq, function (err, conn) {
+        conn.createChannel(function (err, ch) {
+            var q = 'group7AggregatorTopicQueue';
+            ch.assertQueue(q, {
+                durable: false
+            });
+
+            ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));
+            console.log(" [x] Send request to Aggregator");
         });
         setTimeout(function () {
             conn.close();
