@@ -40,16 +40,14 @@ function sendToBank(request) {
     amqp.connect(rabbitmq, function (err, conn) {
         
         conn.createChannel(function (err, ch) {
-            var ex = 'grp7.loanRequest';
+            var q = 'grp7.loanRequest';
     
-            ch.assertExchange(ex, 'fanout', {
-                durable: false
-            });
-            console.log(" [x] sent: %s", JSON.stringify(request));
+            
+            console.log(" [x] rabbit sent: %s", JSON.stringify(request));
 
-            ch.publish(ex, '', Buffer.from(JSON.stringify(request)), {
-                replyTo: 'RabbitJsonQueue'
-            });
+            
+
+            ch.sendToQueue(q, Buffer.from(JSON.stringify(request)), {replyTo: 'RabbitJsonQueue'})
            
         });
     });

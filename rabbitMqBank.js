@@ -6,14 +6,17 @@ amqp.connect(url2, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var q = 'grp7.loanRequest';
 
-        ch.assertQueue(q, { durable: true });
+        ch.assertQueue(q, {
+            durable: true
+        });
+        ch.prefetch(1);
         console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", q);
         ch.consume(q, function (msg) {
             console.log(" [x] Received %s", msg.content.toString());
             console.log(msg.properties.replyTo);
-            console.log((JSON.parse(msg.content)).loanRequest.ssn);
+            console.log((JSON.parse(msg.content)).ssn);
 
-            var creditScore = JSON.parse(msg.content).loanRequest.creditScore;
+            var creditScore = JSON.parse(msg.content).creditScore;
             var interestRate = 0;
 
             switch (true) {
@@ -49,25 +52,24 @@ amqp.connect(url2, function (err, conn) {
                     interestRate = (Math.random() / 8);
                     console.log("8");
                     break;
-
-                    var obj =
-                        {
-                            loanResponse:
-                            {
-                                interestRate: interestRate,
-                                ssn: (JSON.parse(msg.content)).loanRequest.ssn
-                            }
-                        };
-                    console.log(obj.toString())
-
-                    ch.assertQueue(msg.properties.replyTo, { durable: true });
-                    ch.sendToQueue(msg.properties.replyTo, new Buffer(JSON.stringify(obj)));
-                    console.log("sendte reply: " + JSON.stringify(obj));
-
             }
-        },
-            {
-                noAck: true
+            var obj = {
+                loanResponse: {
+                    interestRate: interestRate,
+                    ssn: (JSON.parse(msg.content)).ssn
+                }
+            };
+            console.log(obj.toString())
+            console.log(msg.properties.replyTo)
+            ch.assertQueue(msg.properties.replyTo, {
+                durable: true
             });
+            ch.sendToQueue(msg.properties.replyTo, new Buffer(JSON.stringify(obj)));
+            console.log("sendte reply: " + JSON.stringify(obj));
+
+
+        }, {
+            noAck: true
+        });
     });
 });
