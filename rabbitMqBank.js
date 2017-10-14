@@ -62,7 +62,7 @@ amqp.connect(url2, function (err, conn) {
             console.log(obj.toString())
             console.log(msg.properties.replyTo)
             ch.assertQueue(msg.properties.replyTo, {
-                durable: true
+                durable: false
             });
             ch.sendToQueue(msg.properties.replyTo, new Buffer(JSON.stringify(obj)));
             console.log("sendte reply: " + JSON.stringify(obj));

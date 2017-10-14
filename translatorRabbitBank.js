@@ -46,6 +46,7 @@ function sendToBank(request) {
             console.log(" [x] rabbit sent: %s", JSON.stringify(request));
 
             
+            
 
             ch.sendToQueue(q, Buffer.from(JSON.stringify(request)), {replyTo: 'RabbitJsonQueue'})
            
