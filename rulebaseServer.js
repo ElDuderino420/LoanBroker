@@ -16,13 +16,14 @@ var service = {
                 'all'];
                 if(args.creditScore > 500){
                     ans.push(allBanks[1]);
+                    ans.push(allBanks[2])
                 }
                 else if(args.creditScore < 400){
                     ans.push(allBanks[0]);
+                    ans.push(allBanks[2])
                 } 
                 else {
-                    ans.push(allBanks[0]);
-                    ans.push(allBanks[1]);
+                    ans.push(allBanks[2]);
                 }
                 console.log(ans);
                 return ans;

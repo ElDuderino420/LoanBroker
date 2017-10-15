@@ -27,8 +27,7 @@ amqp.connect(rabbitmq, function (err, conn) {
                     ssn: result.LoanResponse.ssn[0],
                     interestRate: result.LoanResponse.interestRate[0]
                 };
-                console.log(JSON.stringify(request))
-                sendToAggregator(request);
+                sendToAggregator(request,"TineXmlBank");
             });
           
 
@@ -43,18 +42,20 @@ amqp.connect(rabbitmq, function (err, conn) {
                 ssn: temp.ssn,
                 interestRate: temp.interestRate
             }
-            console.log(JSON.stringify(request))
-            sendToAggregator(request);
+            sendToAggregator(request,"TineJsonBank");
         }, {
             noAck: true
         });
         //Rabbit Bank
         ch.consume(qs[2], function (msg) {
             //"RabbitBank"
-            console.log(" [x] Received From RabbitBank %s", msg.content.toString());
-
-            var request = JSON.parse(msg.content);
-            sendToAggregator(request);
+            var temp = JSON.parse(msg.content);
+            var request = {
+                bankq: "RabbitBank",
+                ssn: temp.loanResponse.ssn,
+                interestRate: temp.loanResponse.interestRate
+            }
+            sendToAggregator(request,"RabbitBank");
         }, {
             noAck: true
         });
@@ -66,8 +67,7 @@ amqp.connect(rabbitmq, function (err, conn) {
                 ssn: temp.loanResponse.ssn,
                 interestRate: temp.loanResponse.interestRate
             }
-            console.log(JSON.stringify(request))
-            sendToAggregator(request);
+            sendToAggregator(request,"SoapBank");
         }, {
             noAck: true
         });
@@ -75,7 +75,7 @@ amqp.connect(rabbitmq, function (err, conn) {
     });
 });
 
-function sendToAggregator(request){
+function sendToAggregator(request,bankq){
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
             var q = 'group7AggregatorQueue';
@@ -84,9 +84,10 @@ function sendToAggregator(request){
             });
 
             ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));
-            console.log(" [x] Send request to Aggregator");
+            console.log(" [x] Send request %s to Aggregator: %s",bankq,JSON.stringify(request));
         });
         setTimeout(function () {
+            console.log("----------------")
             conn.close();
         }, 500);
     });

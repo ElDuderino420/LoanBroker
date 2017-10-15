@@ -26,7 +26,10 @@ amqp.connect(rabbitmq, function (err, conn) {
                     ssn: temp,
                     topic: result
                 })
-                recipientList(request, result);
+                result.forEach(function(element) {
+                    recipientList(request, element);    
+                }, this);
+                
             });
             
 
@@ -47,6 +50,7 @@ function getBanks(request, callback) {
                     console.error(err);
                 else{
                     var arr = Object.keys(response).map(function(key){ return response[key] });
+                    console.log(arr)
                     callback(arr);
                 }
             });
@@ -54,12 +58,12 @@ function getBanks(request, callback) {
     });
 };
 
-function recipientList(request, topic) {
+function recipientList(request, key) {
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
             var ex = 'recipientListEx';
 
-            var key = (topic.length > 0) ? topic[0] : 'all';
+            //var key = (topic.length > 0) ? topic[0] : 'all';
 
             ch.assertExchange(ex, 'topic', {durable: false});
 
