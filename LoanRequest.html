@@ -1,6 +1,6 @@
 <html>
     <head>
-        
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     </head>
     <body>
         <form action='/loanRequest' method='post'>
@@ -9,5 +9,24 @@
             Loan Duration:<input type="number" name ="loanDuration" id ="loanDuration">
             <input type="submit" value="Find Loan"/>
         </form>
+
+
+<div>
+        <button id="formTest" >update</button>
+    <textarea style="width:33%;height:50%" name="getres" id="getres" cols="30" rows="10"></textarea>
+
+</div>
+
     </body>
+    <script>
+        
+        
+    $('#formTest').click(function(){
+        console.log("test")
+        $.get( 'http://localhost:3030/getres', function( data ) {
+        $( "#getres" ).val(data)
+        });
+    });
+            
+        </script>
 </html>
