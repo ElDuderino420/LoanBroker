@@ -21,7 +21,7 @@ amqp.connect(rabbitmq, function (err, conn) {
 
         ch.consume(q, function (msg) {
             var res = JSON.parse(msg.content);
-           
+            
             var ssnRes = ResCol["key-"+res.ssn];
             
             var bankDupli = false;

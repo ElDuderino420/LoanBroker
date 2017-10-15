@@ -29,7 +29,7 @@ amqp.connect(rabbitmq, function (err, conn) {
                 result.forEach(function(element) {
                     recipientList(request, element);    
                 }, this);
-                
+                sendLog(request.ssn, "getBanks", "Translators", result)
             });
             
 
@@ -87,6 +87,29 @@ function sendToAggregator(request) {
 
             ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));
             console.log(" [x] Send request to Aggregator");
+        });
+        setTimeout(function () {
+            conn.close();
+        }, 500);
+    });
+}
+
+function sendLog(ssn, from, to, msg) {
+    amqp.connect(rabbitmq, function (err, conn) {
+        conn.createChannel(function (err, ch) {
+            var q = 'group7LogQueue';
+            ch.assertQueue(q, {
+                durable: false
+            });
+            var temp = {
+                ssn:ssn,
+                logKey: from,
+                static: " [x] from " + from + " to " + to,
+                msg: msg
+            }
+
+            ch.sendToQueue(q, Buffer.from(JSON.stringify(temp)));
+            
         });
         setTimeout(function () {
             conn.close();
