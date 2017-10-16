@@ -7,7 +7,7 @@ amqp.connect('amqp://localhost', function (err, conn)
         var q = 'getInterestRate';
         var msg = 'Hello World!';
 
-        ch.assertQueue(q, {durable: false});
+        ch.assertQueue(q, {durable: true});
         // Note: on Node 6 Buffer.from(msg) should be used
         ch.sendToQueue(q, new Buffer(msg));
 

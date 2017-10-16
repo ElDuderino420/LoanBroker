@@ -9,7 +9,7 @@ amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var q = 'group7GetBanks';
         ch.assertQueue(q, {
-            durable: false
+            durable: true
         });
 
         console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", q);
@@ -65,7 +65,7 @@ function recipientList(request, key) {
 
             //var key = (topic.length > 0) ? topic[0] : 'all';
 
-            ch.assertExchange(ex, 'topic', {durable: false});
+            ch.assertExchange(ex, 'topic', {durable: true});
             
             ch.publish(ex, key, Buffer.from(JSON.stringify(request)));
             console.log(" [x] Sent %s: '%s'", key, JSON.stringify(request));
@@ -84,7 +84,7 @@ function sendToAggregator(request) {
         conn.createChannel(function (err, ch) {
             var q = 'group7AggregatorTopic';
             ch.assertQueue(q, {
-                durable: false
+                durable: true
             });
 
             ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));

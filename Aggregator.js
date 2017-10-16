@@ -6,7 +6,7 @@ amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var q = 'group7Aggregator';
         ch.assertQueue(q, {
-            durable: false
+            durable: true
         });
 
         ch.consume(q, function (msg) {
@@ -48,7 +48,7 @@ amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var q = 'group7AggregatorTopic';
         ch.assertQueue(q, {
-            durable: false
+            durable: true
         });
         ch.consume(q, function (msg) {
             var res = JSON.parse(msg.content);
@@ -84,7 +84,7 @@ function sendToServer(request) {
         conn.createChannel(function (err, ch) {
             var q = 'group7AggregatorToFrontendQueue';
             ch.assertQueue(q, {
-                durable: false
+                durable: true
             });
 
             ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));

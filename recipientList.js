@@ -9,7 +9,7 @@ amqp.connect(rabbitmq, function (err, conn) {
 
 
         ch.assertExchange(ex, 'topic', {
-            durable: false
+            durable: true
         });
 
         ch.assertQueue('', {

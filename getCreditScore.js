@@ -9,7 +9,7 @@ amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var q = 'group7GetCredit';
         ch.assertQueue(q, {
-            durable: false
+            durable: true
         });
 
         console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", q);
@@ -57,7 +57,7 @@ function getBanks(request) {
         conn.createChannel(function (err, ch) {
             var q = 'group7GetBanks';
             ch.assertQueue(q, {
-                durable: false
+                durable: true
             });
 
             ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));

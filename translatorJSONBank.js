@@ -11,6 +11,8 @@ amqp.connect(rabbitmq, function (err, conn) {
         var q = 'group7TranslatorJSONBank';
         var topics = args;
 
+        ch.assertExchange(ex, 'topic', {durable: true});
+
         ch.assertQueue(q, {
             durable: true
         });
@@ -46,7 +48,7 @@ function sendToBank(request) {
             var ex = 'cphbusiness.bankJSON';
     
             ch.assertExchange(ex, 'fanout', {
-                durable: true
+                durable: false
             });
             
             ch.publish(ex, '', Buffer.from(JSON.stringify(request)), {

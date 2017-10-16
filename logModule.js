@@ -1,3 +1,6 @@
+var amqp = require('amqplib/callback_api');
+var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
+
 module.exports = {
     sendLog: function (ssn, msg) {
         amqp.connect(rabbitmq, function (err, conn) {
@@ -14,7 +17,7 @@ module.exports = {
                     msg: msg
                 }*/
 
-                ch.assertExchange(ex, 'topic', { durable: false });
+                ch.assertExchange(ex, 'topic', { durable: true });
                 
                 ch.publish(ex, ssn, Buffer.from(msg));
                 //ch.sendToQueue(q, Buffer.from(JSON.stringify(temp)));

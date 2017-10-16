@@ -32,7 +32,7 @@ app.post('/loanRequest', function (req, res) {
             var q = 'group7GetCredit';
 
 
-            ch.assertQueue(q, { durable: false });
+            ch.assertQueue(q, { durable: true });
 
             var cpr = req.body.ssn;
             cpr = cpr.slice(0, cpr.indexOf("-")) + cpr.slice(cpr.indexOf("-") + 1);
@@ -50,7 +50,7 @@ app.post('/loanRequest', function (req, res) {
                 }
             }*/
             var logtemp = "[loanRequest] sent to [" + q + "]: " + JSON.stringify(req.body);
-            logm.sendLog(request.ssn, logtemp)
+            logm.sendLog(cpr, logtemp)
 
             console.log(JSON.stringify(log["key-" + cpr]))
             console.log(log)
@@ -68,7 +68,7 @@ app.post('/loanRequest', function (req, res) {
         conn.createChannel(function (err, ch) {
             var ex = 'group7LogExchange';
             ch.assertExchange(ex, 'topic', {
-                durable: false
+                durable: true
             });
 
             var cpr = req.body.ssn;
@@ -79,8 +79,11 @@ app.post('/loanRequest', function (req, res) {
             },function(err,q){
                 ch.bindQueue(q.queue,ex,cpr);
                 ch.consume(q.queue,function(msg){
-                    document.getElementById('getres').innerHTML += msg + "\n"
-                })
+                    console.log(msg.content.toString());
+                    //document.getElementById('getres').innerHTML += msg + "\n"
+                }, {
+                    noAck: true
+                });
             });
 
             

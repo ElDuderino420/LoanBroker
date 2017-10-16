@@ -53,7 +53,7 @@ function sendToBank(request) {
         conn.createChannel(function (err, ch) {
             var ex = 'cphbusiness.bankXML';  
             ch.assertExchange(ex, 'fanout', {
-                durable: true
+                durable: false
             });
             console.log(" [x] sent: %s", XML);
             ch.publish(ex, '', Buffer.from(XML), {

@@ -1,5 +1,5 @@
 var amqp = require('amqplib/callback_api');
-var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
+var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672';
 var js2xmlparser = require("js2xmlparser");
 var logm = require('./logModule.js')
 //var parser = require('xml2json');
