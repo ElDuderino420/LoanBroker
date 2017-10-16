@@ -3,19 +3,19 @@ var soapBank = 'http://localhost:3032/calculateInterest?wsdl'
 var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 var soap = require('soap');
 var js2xmlparser = require("js2xmlparser");
-
+var logm = require('./logModule.js')
 var args = process.argv.slice(2);
 console.log(args)
 console.log("soap");
 
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
-        var ex = 'recipientListEx';
-        var q = 'group7translatorSoapBankQueue' + args[0];
+        var ex = 'group7RecipientList';
+        var q = 'group7TranslatorSoapBank';
         var topics = args;
 
         ch.assertQueue(q, {
-            durable: false
+            durable: true
         });
 
         topics.forEach(function(key){
@@ -24,9 +24,10 @@ amqp.connect(rabbitmq, function (err, conn) {
 
         ch.consume(q, function(msg){
             console.log(" [x] %s:'%s'", msg.fields.routingKey, msg.content.toString());
-
-            sendToBank(JSON.parse(msg.content));
-
+            var request = JSON.parse(msg.content)
+            sendToBank(request);
+            var logtemp = "["+ex+"] to ["+q+"]: "+msg.content.toString();
+            logm.sendLog(request.ssn,logtemp) 
 
         }, {
             noAck: true
@@ -45,10 +46,7 @@ function sendToBank(request) {
             client.calculateInterest(request, function (err, result) {
                 if (err) {
                     console.log(err);
-                    console.log("send error to normalizer")
-                    sendToNormalizer(JSON.stringify({ssn:request.ssn,interestRate:"err"}));
-                } else {
-                    
+                } else {                   
                     sendToNormalizer(result);
 
                 }
@@ -61,9 +59,9 @@ function sendToBank(request) {
 function sendToNormalizer(request) {
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
-            var q = 'group7SoapResponse';
+            var q = 'group7SoapReply';
             ch.assertQueue(q, {
-                durable: false
+                durable: true
             });
 
             ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));

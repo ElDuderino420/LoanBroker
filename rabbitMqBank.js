@@ -4,7 +4,7 @@ var url2 = 'amqp://student:cph@datdb.cphbusiness.dk:5672';
 
 amqp.connect(url2, function (err, conn) {
     conn.createChannel(function (err, ch) {
-        var q = 'grp7.loanRequest';
+        var q = 'group7RabbitBank';
 
         ch.assertQueue(q, {
             durable: true

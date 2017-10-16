@@ -1,13 +1,13 @@
 var soap = require('soap');
 var amqp = require('amqplib/callback_api');
-
+var logm = require('./logModule.js')
 var rulebase = "http://localhost:3031/getbanks?wsdl";
 //var args = {ssn:'123456-1234',loanAmount:'123',loanDuration:'123',creditScore:'123'};
 var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
-        var q = 'getBanksQueue2';
+        var q = 'group7GetBanks';
         ch.assertQueue(q, {
             durable: false
         });
@@ -29,7 +29,7 @@ amqp.connect(rabbitmq, function (err, conn) {
                 result.forEach(function(element) {
                     recipientList(request, element);    
                 }, this);
-                sendLog(request.ssn, "getBanks", "Translators", result)
+                
             });
             
 
@@ -61,14 +61,16 @@ function getBanks(request, callback) {
 function recipientList(request, key) {
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
-            var ex = 'recipientListEx';
+            var ex = 'group7RecipientList';
 
             //var key = (topic.length > 0) ? topic[0] : 'all';
 
             ch.assertExchange(ex, 'topic', {durable: false});
-
+            
             ch.publish(ex, key, Buffer.from(JSON.stringify(request)));
             console.log(" [x] Sent %s: '%s'", key, JSON.stringify(request));
+            var logtemp = "[group7GetBanks] published to ["+key+"] ["+ex+"]: "+JSON.stringify(request);
+            logm.sendLog(request.ssn,logtemp) 
             
         });
         setTimeout(function () {
@@ -80,7 +82,7 @@ function recipientList(request, key) {
 function sendToAggregator(request) {
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
-            var q = 'group7AggregatorTopicQueue';
+            var q = 'group7AggregatorTopic';
             ch.assertQueue(q, {
                 durable: false
             });
@@ -94,25 +96,3 @@ function sendToAggregator(request) {
     });
 }
 
-function sendLog(ssn, from, to, msg) {
-    amqp.connect(rabbitmq, function (err, conn) {
-        conn.createChannel(function (err, ch) {
-            var q = 'group7LogQueue';
-            ch.assertQueue(q, {
-                durable: false
-            });
-            var temp = {
-                ssn:ssn,
-                logKey: from,
-                static: " [x] from " + from + " to " + to,
-                msg: msg
-            }
-
-            ch.sendToQueue(q, Buffer.from(JSON.stringify(temp)));
-            
-        });
-        setTimeout(function () {
-            conn.close();
-        }, 500);
-    });
-}

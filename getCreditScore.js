@@ -1,12 +1,13 @@
 var soap = require('soap');
 var amqp = require('amqplib/callback_api');
+var logm = require('./logModule.js')
 
 var creditBureau = 'http://138.68.85.24:8080/CreditScoreService/CreditScoreService?wsdl'
 var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
-        var q = 'getCreditScoreQueue';
+        var q = 'group7GetCredit';
         ch.assertQueue(q, {
             durable: false
         });
@@ -21,7 +22,7 @@ amqp.connect(rabbitmq, function (err, conn) {
                 request.creditScore = result.toString();
                 console.log(request);
                 getBanks(request);
-                sendLog(request.ssn, "CreditScore", "getBanks", request)
+                
             });
             
 
@@ -54,13 +55,14 @@ function getCreditScore(ssn, callback) {
 function getBanks(request) {
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
-            var q = 'getBanksQueue2';
+            var q = 'group7GetBanks';
             ch.assertQueue(q, {
                 durable: false
             });
 
             ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));
-
+            var logtemp = "[group7GetCredit] sent to ["+q+"]: "+JSON.stringify(request);
+            logm.sendLog(request.ssn,logtemp) 
             console.log(" [x] Send request to getBanks");
         });
         setTimeout(function () {
@@ -69,25 +71,3 @@ function getBanks(request) {
     });
 }
 
-function sendLog(ssn, from, to, msg) {
-    amqp.connect(rabbitmq, function (err, conn) {
-        conn.createChannel(function (err, ch) {
-            var q = 'group7LogQueue';
-            ch.assertQueue(q, {
-                durable: false
-            });
-            var temp = {
-                ssn:ssn,
-                logKey: from,
-                static: " [x] from " + from + " to " + to,
-                msg: msg
-            }
-
-            ch.sendToQueue(q, Buffer.from(JSON.stringify(temp)));
-            
-        });
-        setTimeout(function () {
-            conn.close();
-        }, 500);
-    });
-}

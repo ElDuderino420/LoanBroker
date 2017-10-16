@@ -2,6 +2,7 @@ var express = require('express');
 var path = require('path');
 var bodyParser = require('body-parser');
 var amqp = require('amqplib/callback_api');
+var logm = require('./logModule.js');
 
 var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 
@@ -16,10 +17,10 @@ app.get('/', function (req, res) {
 });
 app.get('/getres/:ssn', function (req, res) {
     var cpr = req.params.ssn;
-    if(cpr.indexOf("-") != -1 ){
-        cpr = cpr.slice(0, cpr.indexOf("-"))+cpr.slice(cpr.indexOf("-")+1);
+    if (cpr.indexOf("-") != -1) {
+        cpr = cpr.slice(0, cpr.indexOf("-")) + cpr.slice(cpr.indexOf("-") + 1);
     }
-    res.send(JSON.stringify(log["key-"+cpr]));
+    res.send(JSON.stringify(log["key-" + cpr]));
 })
 
 app.post('/loanRequest', function (req, res) {
@@ -28,7 +29,7 @@ app.post('/loanRequest', function (req, res) {
     //GET CREDIT SCORE
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
-            var q = 'getCreditScoreQueue';
+            var q = 'group7GetCredit';
 
 
             ch.assertQueue(q, { durable: false });
@@ -36,7 +37,8 @@ app.post('/loanRequest', function (req, res) {
             var cpr = req.body.ssn;
             cpr = cpr.slice(0, cpr.indexOf("-")) + cpr.slice(cpr.indexOf("-") + 1);
             console.log(cpr)
-            if (log["key-" + cpr] == null) {
+
+            /*if (log["key-" + cpr] == null) {
                 log["key-" + cpr] = {
                     response: {},
                     log: {
@@ -46,7 +48,10 @@ app.post('/loanRequest', function (req, res) {
                         }
                     }
                 }
-            }
+            }*/
+            var logtemp = "[loanRequest] sent to [" + q + "]: " + JSON.stringify(req.body);
+            logm.sendLog(request.ssn, logtemp)
+
             console.log(JSON.stringify(log["key-" + cpr]))
             console.log(log)
             ch.sendToQueue(q, Buffer.from(JSON.stringify(req.body)));
@@ -59,8 +64,31 @@ app.post('/loanRequest', function (req, res) {
     });
 
     res.redirect('/');
-});
+    amqp.connect(rabbitmq, function (err, conn) {
+        conn.createChannel(function (err, ch) {
+            var ex = 'group7LogExchange';
+            ch.assertExchange(ex, 'topic', {
+                durable: false
+            });
 
+            var cpr = req.body.ssn;
+            cpr = cpr.slice(0, cpr.indexOf("-")) + cpr.slice(cpr.indexOf("-") + 1);
+
+            ch.assertQueue('', {
+                exclusive: true
+            },function(err,q){
+                ch.bindQueue(q.queue,ex,cpr);
+                ch.consume(q.queue,function(msg){
+                    document.getElementById('getres').innerHTML += msg + "\n"
+                })
+            });
+
+            
+
+        });
+    });
+});
+/*
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var q = 'group7AggregatorToFrontendQueue';
@@ -90,12 +118,12 @@ amqp.connect(rabbitmq, function (err, conn) {
              logKey:getBanksLog,
              static: from xxxx to yyyy
              msg:"whatevs"}*/
-             
+/*
             var res = JSON.parse(msg.content);
             console.log(JSON.stringify(res))
-            if(res.ssn.indexOf("-") != -1 ){
+            if (res.ssn.indexOf("-") != -1) {
                 var cpr = res.ssn;
-                res.ssn = cpr.slice(0, cpr.indexOf("-"))+cpr.slice(cpr.indexOf("-")+1);
+                res.ssn = cpr.slice(0, cpr.indexOf("-")) + cpr.slice(cpr.indexOf("-") + 1);
             }
             if (log["key-" + res.ssn] != null) {
                 if (res.logKey != null && res.static != null && res.msg != null) {
@@ -105,13 +133,13 @@ amqp.connect(rabbitmq, function (err, conn) {
                     }
                 }
                 log["key-" + res.ssn].response = res;
-                }
-            }, {
-            noAck: true
-        });
+            }
+        }, {
+                noAck: true
+            });
 
-});
-});
+    });
+});*/
 
 var server = app.listen(3030, function () {
     var host = 'localhost';
