@@ -2,6 +2,7 @@ var amqp = require('amqplib/callback_api');
 var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 var logm = require('./logModule.js')
 var ResCol = new Array();
+var sent = "";
 //var checkSsn = [];
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
@@ -72,18 +73,31 @@ amqp.connect(rabbitmq, function (err, conn) {
                 if (ssnRes.numBanks == ssnRes.response.length) {
                     
                     sendToServer(res.ssn,ssnRes.response)
+                    sent = res.ssn;
+                    
+                    //ch.sendToQueue(q, Buffer.from(stringRequest));
+        
+                    
+                    //console.log(" [x] Send to Frontend %s", stringRequest);
                     
                     delete ResCol["key-" + res.ssn];
                 }
             }
             console.log("Recieved: %s       ResCol.length: %s       ", msg.content.toString(), Object.keys(ResCol).length)
             console.log("Key stored: %s    ", JSON.stringify(ssnRes))
-
+            setTimeout(function () {
+                if(sent != res.ssn){
+                    console.log("bank not responding");
+                    sendToServer(res.ssn, ssnRes.response)
+                    sent = res.ssn;
+                }
+            }, 3000);
 
 
         }, {
                 noAck: true
             });
+            
     });
 
     
@@ -129,12 +143,21 @@ function sendToServer(ssn,request) {
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
             var ex = 'group7AggregatorFrontend';
-            stringRequest = JSON.stringify(request);
+            var min = 10000;
+            var final;
+            request.forEach(function(r){
+                if(r.interestRate < min){
+                    min = r.interestRate;
+                    final = r;
+                }
+            });
+
+            var stringRequest = JSON.stringify(final);
             if(ssn.indexOf("-") != -1){
             ssn = ssn.slice(0, ssn.indexOf("-"))+ssn.slice(ssn.indexOf("-")+1);
             }
             var logtemp = "[Aggregator] sent to ["+ex+"]: "+stringRequest;
-            logm.sendLog(ssn,logtemp)
+            logm.sendLog(ssn,logtemp);
             ch.assertExchange(ex, 'topic', { durable: true });          
             ch.publish(ex, ssn, Buffer.from(stringRequest));
             

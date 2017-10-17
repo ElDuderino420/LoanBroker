@@ -1,0 +1,18 @@
+html
+  head
+    title= title
+  body
+    h1= message
+    form(action = '/loanRequest' method='post')
+        label(for="ssn") Social Security Number(ssn): 
+        input(type="text" name="ssn" id="ssn" value= ssn)
+        br
+        label(for="loanAmount") Loan Amount($):
+        input(type="number" name="loanAmount" id="loanAmount" value= loanAmount)
+        br
+        label(for="loanDuration") Loan Duration:
+        input(type="number" name="loanDuration" id="loanDuration" value= loanDuration)
+        br
+        input(type="submit", value="Find Loan")
+    
+    

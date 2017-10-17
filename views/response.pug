@@ -1,0 +1,37 @@
+html
+  head
+    title= title
+    script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js")
+  body
+    h1= message
+    label(for='ssn') CPR: 
+    p(name='ssn' id='ssn')= ssn
+    label(for="log") Log:
+    br
+    textarea(name="log" id="log" rows="20" cols="150")= log
+    br
+    br
+    label(for="response") Response:
+    br
+    textarea(name="response" id="response" rows="2" cols="100")= response
+
+    script.
+        var cpr = document.getElementById('ssn').innerHTML;
+        var i = setInterval(function () {
+            $.get('/update/'+cpr, function(data) {
+                console.log(data);
+                if(document.getElementById('response').innerHTML != "") {
+                    clearInterval(i);
+                } else if(data.resp){
+                    clearInterval(i);
+                    document.getElementById('response').innerHTML = data.resp;
+                    document.getElementById('log').innerHTML = data.log; 
+                } else {
+                    document.getElementById('log').innerHTML = data.log; 
+                }
+                
+                
+            });
+            
+            
+        }, 1000);

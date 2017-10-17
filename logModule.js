@@ -3,13 +3,14 @@ var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 
 module.exports = {
     sendLog: function (ssn, msg) {
+        
         amqp.connect(rabbitmq, function (err, conn) {
             conn.createChannel(function (err, ch) {
                 var ex = 'group7LogExchange';
                 if(ssn.indexOf("-") != -1){
                 ssn = ssn.slice(0, ssn.indexOf("-"))+ssn.slice(ssn.indexOf("-")+1);
                 }
-
+                console.log(ssn + ":" + msg);
                 /*var temp = {
                     ssn: ssn,
                     logKey: from,
