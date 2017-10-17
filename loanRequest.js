@@ -6,7 +6,10 @@ var logm = require('./logModule.js');
 
 var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 
-var log = new Array();
+var checkSsn = [];
+var checkSsn2 = [];
+var logfile = new Array();
+var latest = {};
 
 var app = express();
 app.use(bodyParser.json());
@@ -15,15 +18,23 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/LoanRequest.html');
 });
-app.get('/getres/:ssn', function (req, res) {
-    var cpr = req.params.ssn;
-    if (cpr.indexOf("-") != -1) {
-        cpr = cpr.slice(0, cpr.indexOf("-")) + cpr.slice(cpr.indexOf("-") + 1);
-    }
-    res.send(JSON.stringify(log["key-" + cpr]));
+app.get('/getres', function (req, res) {
+
+    res.send(JSON.stringify(latest));
 })
 
 app.post('/loanRequest', function (req, res) {
+    var cpr = req.body.ssn;
+    if (cpr != null && cpr.indexOf("-") != -1) {
+        cpr = cpr.slice(0, cpr.indexOf("-")) + cpr.slice(cpr.indexOf("-") + 1);
+    }
+    if(cpr == null || req.body.loanAmount.length == 0 || req.body.loanDuration.length == 0 || parseFloat(cpr).toString().length != 10 ){
+        console.log("request blocked!")
+        res.redirect('/')
+    }else{
+
+    console.log(cpr)
+
     console.log(req.body);
 
     //GET CREDIT SCORE
@@ -52,8 +63,8 @@ app.post('/loanRequest', function (req, res) {
             var logtemp = "[loanRequest] sent to [" + q + "]: " + JSON.stringify(req.body);
             logm.sendLog(cpr, logtemp)
 
-            console.log(JSON.stringify(log["key-" + cpr]))
-            console.log(log)
+            //console.log(JSON.stringify(log["key-" + cpr]))
+            //console.log(log)
             ch.sendToQueue(q, Buffer.from(JSON.stringify(req.body)));
             //ch.sendToQueue(log, Buffer.from(JSON.stringify(req.body)));
             //ch.sendToQueue(log, Buffer.from(" [x] Send request to credit score"));
@@ -62,12 +73,22 @@ app.post('/loanRequest', function (req, res) {
         });
         setTimeout(function () { conn.close(); }, 500);
     });
-
     res.redirect('/');
+
+
+
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
             var ex = 'group7LogExchange';
+            var ex2 = 'group7AggregatorFrontend'
+            var response = {
+                response: [],
+                log: []
+            }
             ch.assertExchange(ex, 'topic', {
+                durable: true
+            });
+            ch.assertExchange(ex2, 'topic', {
                 durable: true
             });
 
@@ -76,31 +97,56 @@ app.post('/loanRequest', function (req, res) {
 
             ch.assertQueue('', {
                 exclusive: true
-            },function(err,q){
-                ch.bindQueue(q.queue,ex,cpr);
-                ch.consume(q.queue,function(msg){
+            }, function (err, q) {
+                if (!checkSsn.includes(cpr)) {
+                    checkSsn.push(cpr);
+                    ch.bindQueue(q.queue, ex, cpr);
+
+                }
+
+                /*logfile[cpr] = {
+                    response: [],
+                    log:[]
+                }*/
+                ch.consume(q.queue, function (msg) {
+                    response.log.push(msg.content.toString())
                     console.log(msg.content.toString());
                     //document.getElementById('getres').innerHTML += msg + "\n"
                 }, {
-                    noAck: true
-                });
+                        noAck: true
+                    });
             });
+            ch.assertQueue('', {
+                exclusive: true
+            }, function (err, q) {
+                if (!checkSsn2.includes(cpr)) {
+                    checkSsn2.push(cpr);
+                    ch.bindQueue(q.queue, ex2, cpr);
 
-            
+                }
+
+                ch.consume(q.queue, function (msg) {
+                    response.response = JSON.parse(msg.content)
+                    console.log(msg.content.toString());
+                    latest = response;
+                    //res.send(JSON.stringify(response))
+                    //document.getElementById('getres').innerHTML += msg + "\n"
+                }, {
+                        noAck: true
+                    });
+            });
 
         });
     });
+}
 });
+
 /*
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
-        var q = 'group7AggregatorToFrontendQueue';
-        var q2 = 'group7LogQueue';
-
+        var q = 'group7AggregatorFrontend';
+        
         ch.assertQueue(q, {
-            durable: false
-        });
-        ch.assertQueue(q2, {
             durable: false
         });
 

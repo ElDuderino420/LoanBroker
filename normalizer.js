@@ -1,5 +1,5 @@
 var amqp = require('amqplib/callback_api');
-var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672';
+var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 var js2xmlparser = require("js2xmlparser");
 var logm = require('./logModule.js')
 //var parser = require('xml2json');
@@ -29,7 +29,7 @@ amqp.connect(rabbitmq, function (err, conn) {
                     ssn: result.LoanResponse.ssn[0],
                     interestRate: result.LoanResponse.interestRate[0]
                 };
-                var logtemp = "["+request.bankq+"] sent to [Normalizer]: "+msg.content.toString();
+                var logtemp = "["+request.bankq+"] sent to [Normalizer]: "+msg.content.toString()
                 logm.sendLog(request.ssn,logtemp) 
                 sendToAggregator(request);
             });
@@ -40,10 +40,12 @@ amqp.connect(rabbitmq, function (err, conn) {
             });
         //Tine's JSON Bank
         ch.consume(qs[1], function (msg) {
+            
             var temp = JSON.parse(msg.content);
+            
             var request = {
                 bankq: "TineJSONBank",
-                ssn: temp.ssn,
+                ssn: temp.ssn.toString(),
                 interestRate: temp.interestRate
             }
             var logtemp = "["+request.bankq+"] sent to [Normalizer]: "+msg.content.toString();
@@ -70,6 +72,7 @@ amqp.connect(rabbitmq, function (err, conn) {
         //Soap Bank
         ch.consume(qs[3], function (msg) {
             var temp = JSON.parse(msg.content);
+            
             var request = {
                 bankq: "SoapBank",
                 ssn: temp.loanResponse.ssn,
@@ -88,17 +91,21 @@ amqp.connect(rabbitmq, function (err, conn) {
 function sendToAggregator(request, bankq) {
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
-            var ex = 'group7Aggregator';
+            stringRequest = JSON.stringify(request)
+            /*var ex = 'group7Aggregator';
             ch.assertExchange(ex, 'topic' , {
                 durable: true
             });
-
-            ch.publish(ex,request.ssn,Buffer.from(JSON.stringify(request)))
-
-            //ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));
-            var logtemp = "[Normalizer] to ["+q+"]: "+msg.content.toString();
+            ch.publish(ex,request.ssn,Buffer.from(stringRequest))*/
+            var q = 'group7Aggregator';
+            ch.assertQueue(q , {
+                durable: true
+            });
+            ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));
+            
+            var logtemp = "[Normalizer] publish to ["+((q != null) ? q: ex)+"]: "+stringRequest;
             logm.sendLog(request.ssn,logtemp) 
-            console.log(" [x] Send request %s to Aggregator: %s", request.bankq, JSON.stringify(request));
+            console.log(" [x] Send request %s to Aggregator: %s", request.bankq, stringRequest);
         });
         setTimeout(function () {
             console.log("----------------")
