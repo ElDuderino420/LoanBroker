@@ -4,10 +4,16 @@ var logm = require('./logModule.js')
 
 var creditBureau = 'http://138.68.85.24:8080/CreditScoreService/CreditScoreService?wsdl'
 var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
-
+var args = process.argv.slice(2);
+var dev = false;
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var q = 'group7GetCredit';
+        
+        if (args.length == 1 && args[0] == "Dev") {
+            q += args[0];
+            dev = true;
+        }
         ch.assertQueue(q, {
             durable: true
         });
@@ -56,13 +62,17 @@ function getBanks(request) {
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
             var q = 'group7GetBanks';
+            var args = process.argv.slice(2);
+            if (args.length == 1 && args[0] == "Dev") {
+                q += args[0];
+            }
             ch.assertQueue(q, {
                 durable: true
             });
 
             ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));
             var logtemp = "[group7GetCredit] sent to ["+q+"]: "+JSON.stringify(request);
-            logm.sendLog(request.ssn,logtemp) 
+            logm.sendLog(request.ssn,logtemp, dev) 
             console.log(" [x] Send request to getBanks");
         });
         setTimeout(function () {

@@ -68,6 +68,12 @@ app.post('/loanRequest', function (req, res) {
                 var q = 'group7GetCredit';
                 var ex = 'group7LogExchange';
                 var ex2 = 'group7AggregatorFrontend'
+                var args = process.argv.slice(2);
+                if (args.length == 1 && args[0] == "Dev") {
+                    q += args[0];
+                    ex += args[0]
+                    ex2 += args[0]
+                }
 
                 //Get Credit Score Queue
                 ch.assertQueue(q, {

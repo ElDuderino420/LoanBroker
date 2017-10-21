@@ -4,7 +4,8 @@ var js2xmlparser = require("js2xmlparser");
 var logm = require('./logModule.js')
 //var parser = require('xml2json');
 var parseString = require('xml2js').parseString;
-
+var args = process.argv.slice(2);
+var dev = false;
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var qs = [
@@ -12,7 +13,12 @@ amqp.connect(rabbitmq, function (err, conn) {
             'group7JSONReply',
             'group7RabbitReply',
             'group7SoapReply'];
-
+            for (var index = 0; index < qs.length; index++) {
+                if (args.length == 1 && args[0] == "Dev") {
+                    qs[index] += args[0];
+                    dev = true;
+                }  
+            }
         qs.forEach(function (q) {
             ch.assertQueue(q, {
                 durable: true
@@ -30,7 +36,7 @@ amqp.connect(rabbitmq, function (err, conn) {
                     interestRate: result.LoanResponse.interestRate[0]
                 };
                 var logtemp = "["+request.bankq+"] sent to [Normalizer]: "+msg.content.toString()
-                logm.sendLog(request.ssn,logtemp) 
+                logm.sendLog(request.ssn,logtemp, dev) 
                 sendToAggregator(request);
             });
 
@@ -49,7 +55,7 @@ amqp.connect(rabbitmq, function (err, conn) {
                 interestRate: temp.interestRate
             }
             var logtemp = "["+request.bankq+"] sent to [Normalizer]: "+msg.content.toString();
-            logm.sendLog(request.ssn,logtemp) 
+            logm.sendLog(request.ssn,logtemp, dev) 
             sendToAggregator(request);
         }, {
                 noAck: true
@@ -64,7 +70,7 @@ amqp.connect(rabbitmq, function (err, conn) {
                 interestRate: temp.loanResponse.interestRate
             }
             var logtemp = "["+request.bankq+"] sent to [Normalizer]: "+msg.content.toString();
-            logm.sendLog(request.ssn,logtemp) 
+            logm.sendLog(request.ssn,logtemp, dev) 
             sendToAggregator(request);
         }, {
                 noAck: true
@@ -79,7 +85,7 @@ amqp.connect(rabbitmq, function (err, conn) {
                 interestRate: temp.loanResponse.interestRate
             }
             var logtemp = "["+request.bankq+"] sent to [Normalizer]: "+msg.content.toString();
-            logm.sendLog(request.ssn,logtemp) 
+            logm.sendLog(request.ssn,logtemp, dev) 
             sendToAggregator(request);
         }, {
                 noAck: true
@@ -92,19 +98,17 @@ function sendToAggregator(request, bankq) {
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
             stringRequest = JSON.stringify(request)
-            /*var ex = 'group7Aggregator';
-            ch.assertExchange(ex, 'topic' , {
-                durable: true
-            });
-            ch.publish(ex,request.ssn,Buffer.from(stringRequest))*/
             var q = 'group7Aggregator';
+            if (args.length == 1 && args[0] == "Dev") {
+                q += args[0];
+            }  
             ch.assertQueue(q , {
                 durable: true
             });
             ch.sendToQueue(q, Buffer.from(JSON.stringify(request)));
             
             var logtemp = "[Normalizer] publish to ["+((q != null) ? q: ex)+"]: "+stringRequest;
-            logm.sendLog(request.ssn,logtemp) 
+            logm.sendLog(request.ssn,logtemp, dev) 
             console.log(" [x] Send request %s to Aggregator: %s", request.bankq, stringRequest);
         });
         setTimeout(function () {

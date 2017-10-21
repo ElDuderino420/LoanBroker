@@ -1,11 +1,13 @@
 var amqp = require('amqplib/callback_api');
 
 var url2 = 'amqp://student:cph@datdb.cphbusiness.dk:5672';
-
+var args = process.argv.slice(2);
 amqp.connect(url2, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var q = 'group7RabbitBank';
-
+        if (args.length == 1 && args[0] == "Dev") {
+            q += args[0];
+        }        
         ch.assertQueue(q, {
             durable: true
         });

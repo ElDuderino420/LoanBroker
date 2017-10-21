@@ -4,10 +4,15 @@ var logm = require('./logModule.js')
 var rulebase = "http://localhost:3031/getbanks?wsdl";
 //var args = {ssn:'123456-1234',loanAmount:'123',loanDuration:'123',creditScore:'123'};
 var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
-
+var args = process.argv.slice(2);
+var dev = false;
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var q = 'group7GetBanks';
+        if (args.length == 1 && args[0] == "Dev") {
+            q += args[0];
+            dev = true;
+        }
         ch.assertQueue(q, {
             durable: true
         });
@@ -62,6 +67,9 @@ function recipientList(request, key) {
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
             var ex = 'group7RecipientList';
+            if (args.length == 1 && args[0] == "Dev") {
+                ex += args[0];
+            }
 
             //var key = (topic.length > 0) ? topic[0] : 'all';
 
@@ -70,7 +78,7 @@ function recipientList(request, key) {
             ch.publish(ex, key, Buffer.from(JSON.stringify(request)));
             console.log(" [x] Sent %s: '%s'", key, JSON.stringify(request));
             var logtemp = "[group7GetBanks] published to ["+key+"] ["+ex+"]: "+JSON.stringify(request);
-            logm.sendLog(request.ssn,logtemp) 
+            logm.sendLog(request.ssn, logtemp, dev) 
             
         });
         setTimeout(function () {
@@ -83,6 +91,9 @@ function sendToAggregator(request) {
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
             var q = 'group7AggregatorTopic';
+            if (args.length == 1 && args[0] == "Dev") {
+                q += args[0];
+            }
             ch.assertQueue(q, {
                 durable: true
             });

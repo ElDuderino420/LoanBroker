@@ -3,57 +3,19 @@ var rabbitmq = 'amqp://student:cph@datdb.cphbusiness.dk:5672'
 var logm = require('./logModule.js')
 var ResCol = new Array();
 var sent = "";
-//var checkSsn = [];
+var args = process.argv.slice(2);
+var dev = false;
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var q = 'group7Aggregator';
+        if (args.length == 1 && args[0] == "Dev") {
+            q += args[0];
+            dev = true;
+        }  
         ch.assertQueue(q, {
             durable: true
         });
         
-/*        
-        var ex = 'group7Aggregator';
-        ch.assertExchange(ex, 'topic', {
-            durable: true
-        });
-
-        ch.assertQueue('', {
-            exclusive: true
-        },function(err,q){
-            if(!checkSsn.includes(cpr)){
-                checkSsn.push(cpr);
-                ch.bindQueue(q.queue,ex,cpr);
-            }
-            
-            ch.consume(q.queue,function(msg){
-                console.log(msg.content.toString());
-                var res = JSON.parse(msg.content);
-
-            var ssnRes = ResCol["key-" + res.ssn];
-
-            var bankDupli = false;
-            if (ssnRes != null) {
-
-                ssnRes.response.forEach(function (element) {
-                    if (element.bankq == res.bankq) {
-                        bankDupli = true
-                    }
-                }, this);
-                if (!bankDupli) {
-                    ssnRes.response.push(res);
-                }
-                if (ssnRes.numBanks == ssnRes.response.length) {
-                    sendToServer(ssnRes.response)
-                    delete ResCol["key-" + res.ssn];
-                }
-            }
-            console.log("Recieved: %s       ResCol.length: %s       ", msg.content.toString(), Object.keys(ResCol).length)
-            console.log("Key stored: %s    ", JSON.stringify(ssnRes))
-            }, {
-                noAck: true
-            });
-        });
-*/
         ch.consume(q, function (msg) {
             var res = JSON.parse(msg.content);
 
@@ -107,6 +69,9 @@ amqp.connect(rabbitmq, function (err, conn) {
 amqp.connect(rabbitmq, function (err, conn) {
     conn.createChannel(function (err, ch) {
         var q = 'group7AggregatorTopic';
+        if (args.length == 1 && args[0] == "Dev") {
+            q += args[0];
+        }  
         ch.assertQueue(q, {
             durable: true
         });
@@ -143,6 +108,10 @@ function sendToServer(ssn,request) {
     amqp.connect(rabbitmq, function (err, conn) {
         conn.createChannel(function (err, ch) {
             var ex = 'group7AggregatorFrontend';
+            if (args.length == 1 && args[0] == "Dev") {
+                ex += args[0];
+
+            }  
             var min = 10000;
             var final;
             request.forEach(function(r){
@@ -157,7 +126,7 @@ function sendToServer(ssn,request) {
             ssn = ssn.slice(0, ssn.indexOf("-"))+ssn.slice(ssn.indexOf("-")+1);
             }
             var logtemp = "[Aggregator] sent to ["+ex+"]: "+stringRequest;
-            logm.sendLog(ssn,logtemp);
+            logm.sendLog(ssn,logtemp, dev);
             ch.assertExchange(ex, 'topic', { durable: true });          
             ch.publish(ex, ssn, Buffer.from(stringRequest));
             
