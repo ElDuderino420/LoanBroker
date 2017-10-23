@@ -12,14 +12,11 @@ The loan quote process flow goes like this:
 7. Pass the result back to the consumer
 
 
-Run everything by running the runeverything.bat file.
+Run everything by running these 3 lines:
+npm install pm2 -g
+npm install
+src/runeverything.bat
 
 Make loan request on http://localhost:3030
-
-Rulebase server on http://localhost:3031/getbanks?wsdl
-
-Loan Request (loanRequest.js) => 
-getCreditScoreQueue (getCreditScore.js) => 
-getBanksQueue (getBanks.js) => 
-recipientListQueue () => 
-...
+or use the live version on digitalocean.com.
+http://37.139.5.194:3030
