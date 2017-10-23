@@ -1,0 +1,22 @@
+body {
+    padding-top: 40px;
+    padding-bottom: 40px;
+    background-color: #eee;
+  }
+
+  h1 {
+      text-align: center;
+  }
+
+  label {
+      font-weight: bold;
+  }
+
+  img {
+      margin: 0 auto;
+      position: absolute;
+      width:100%;
+      opacity: 0.5;
+      display: block;
+      bottom: 0px;
+  }

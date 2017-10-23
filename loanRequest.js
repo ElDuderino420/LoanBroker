@@ -28,7 +28,7 @@ app.use(bodyParser.urlencoded({
 
 app.get('/', function (req, res) {
     res.render('index', {
-        title: 'LoanRequest',
+        title: 'Loan Request',
         message: 'Loan Request'
     });
     //res.sendFile(__dirname + '/LoanRequest.html');
@@ -46,7 +46,7 @@ app.post('/loanRequest', function (req, res) {
     }
     if (loanLogs[cpr] != null) {
         res.render('response', {
-            title: 'LoanRequest',
+            title: 'Loan Request',
             message: 'Please wait for your responce!',
             ssn: cpr,
             log: loanLogs[cpr],
@@ -54,7 +54,7 @@ app.post('/loanRequest', function (req, res) {
         });
     } else if (cpr == null || req.body.loanAmount.length == 0 || req.body.loanDuration.length == 0 || parseFloat(cpr).toString().length != 10) {
         res.render('index', {
-            title: 'LoanRequest',
+            title: 'Loan Request',
             message: 'Please input valid arguments!'
         });
     } else {
@@ -153,8 +153,8 @@ app.post('/loanRequest', function (req, res) {
                 });
 
                 res.render('response', {
-                    title: 'LoanRequest',
-                    message: 'LoanRequest',
+                    title: 'Loan Response',
+                    message: 'Loan Response',
                     ssn: cpr,
                     log: loanLogs[cpr],
                     response: loanResponses[cpr]

@@ -1,18 +1,22 @@
 html
   head
     title= title
+    link(rel='stylesheet', href="./style.css")
+    link(rel='stylesheet', href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css", integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous")
   body
-    h1= message
-    form(action = '/loanRequest' method='post')
-        label(for="ssn") Social Security Number(ssn): 
-        input(type="text" name="ssn" id="ssn" value= ssn)
-        br
-        label(for="loanAmount") Loan Amount($):
-        input(type="number" name="loanAmount" id="loanAmount" value= loanAmount)
-        br
-        label(for="loanDuration") Loan Duration:
-        input(type="number" name="loanDuration" id="loanDuration" value= loanDuration)
-        br
-        input(type="submit", value="Find Loan")
+    
+    div(class="container")
+      h1(class="form-heading")= message
+      form(action = '/loanRequest' method='post' class="form")
+          label(for="ssn" class="sr-only") Social Security Number(ssn): 
+          input(type="text" name="ssn" id="ssn" value= ssn class="form-control" placeholder="Social Security Number" required autofocus)
+          
+          label(for="loanAmount" class="sr-only") Loan Amount($):
+          input(type="number" name="loanAmount" id="loanAmount" value= loanAmount class="form-control" placeholder="Loan Amount ($)" required)
+          
+          label(for="loanDuration" class="sr-only") Loan Duration:
+          input(type="number" name="loanDuration" id="loanDuration" value= loanDuration class="form-control" placeholder="Loan Duration (Months)" required)
+          br
+          input(type="submit", value="Find Loan" class="btn btn-primary btn-block")
     
     
