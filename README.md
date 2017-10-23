@@ -11,12 +11,16 @@ The loan quote process flow goes like this:
 6. Determine the best response
 7. Pass the result back to the consumer
 
-
+<br>Check out the live version here: http://37.139.5.194:3030
+<br>Or run it locally with 3 easy steps
 <br>Run everything by running these 3 lines:
+<br>Navigate to ./LoanBroker/src
 <br>npm install pm2 -g
 <br>npm install
-<br>src/runeverything.bat
-<br>
+<br>If you are on a windows machine run src/runeverything.bat
+<br>If you are on a windows machine run equivalent of altStart.txt, all the lines are listed sequencially, we have tested on linux that they can all be pasted into a single line for more convenience.
+
 <br>Make loan request on http://localhost:3030
-<br>or use the live version on digitalocean.com.
-<br>http://37.139.5.194:3030
+<br>When done with it locally plz use pm2 delete all, else your pm2 will run in the background until you reboot.
+
+
