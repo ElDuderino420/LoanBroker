@@ -1,4 +1,14 @@
-call pm2 delete all
-
-pm2 start loanRequest.js; pm2 start getCreditScore.js; pm2 start rulebaseServer.js; pm2 start getBanks.js; pm2 start soapBank1.js; pm2 start rabbitMqBank.js; pm2 start normalizer.js; pm2 start Aggregator.js; pm2 start translatorJSONBank.js -- poor; pm2 start translatorXMLBank.js -- rich; pm2 start translatorSoapBank.js -- all; pm2 start translatorRabbitBank.js -- all;
+pm2 delete all;
+pm2 start loanRequest.js -- Dev; 
+pm2 start getCreditScore.js -- Dev; 
+pm2 start rulebaseServer.js ; 
+pm2 start getBanks.js -- Dev; 
+pm2 start soapBank1.js; 
+pm2 start rabbitMqBank.js -- Dev; 
+pm2 start normalizer.js -- Dev; 
+pm2 start Aggregator.js -- Dev; 
+pm2 start translatorJSONBank.js -- poor Dev; 
+pm2 start translatorXMLBank.js -- rich Dev; 
+pm2 start translatorSoapBank.js -- all Dev; 
+pm2 start translatorRabbitBank.js -- all Dev;
 
