@@ -102,9 +102,9 @@ app.post('/loanRequest', function (req, res) {
                     }*/
                     ch.consume(q.queue, function (msg) {
                         //response.log.push(msg.content.toString())
-                        console.log(msg.content.toString());
+                        //console.log(msg.content.toString());
                         loanLogs[cpr] += msg.content + "\n";
-                        console.log(loanLogs[cpr]);
+                        //console.log(loanLogs[cpr]);
                         //document.getElementById('getres').innerHTML += msg + "\n"
                     }, {
                         noAck: true
