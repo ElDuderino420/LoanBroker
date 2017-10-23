@@ -1,5 +1,5 @@
 # LoanBroker
-Group: loanbroker7
+Group: loanbroker7<br>
 
 
 The loan quote process flow goes like this:
@@ -12,11 +12,11 @@ The loan quote process flow goes like this:
 7. Pass the result back to the consumer
 
 
-Run everything by running these 3 lines:
-npm install pm2 -g
-npm install
-src/runeverything.bat
-
-Make loan request on http://localhost:3030
-or use the live version on digitalocean.com.
-http://37.139.5.194:3030
+<br>Run everything by running these 3 lines:
+<br>npm install pm2 -g
+<br>npm install
+<br>src/runeverything.bat
+<br>
+<br>Make loan request on http://localhost:3030
+<br>or use the live version on digitalocean.com.
+<br>http://37.139.5.194:3030
